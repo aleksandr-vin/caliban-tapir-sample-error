@@ -1,0 +1,25 @@
+<configuration>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <Pattern>
+                %-5level [%thread] %logger{36} - %msg%n
+            </Pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <queuesize>500</queuesize>
+        <discardingthreshold>0</discardingthreshold>
+        <appender-ref ref="CONSOLE"/>
+    </appender>
+
+    <logger name="sttp.tapir.server" level="DEBUG"/>-
+    <logger name="org.http4s.server.service-errors" level="DEBUG"/>
+    <logger name="org.http4s.server.message-failures" level="DEBUG"/>
+
+    <root level="DEBUG">
+        <appender-ref ref="ASYNC"/>
+    </root>
+
+</configuration>
