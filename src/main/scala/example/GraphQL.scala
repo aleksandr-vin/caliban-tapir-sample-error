@@ -26,6 +26,9 @@ class GraphQL extends GenericSchema[Any] {
       @Annotations.GQLDescription("Return all characters from a given origin")
       characters: () => Task[List[Character]])
 
+  case class CharacterArgs(name: String)
+  case class Mutations(deleteCharacter: CharacterArgs => Task[Boolean])
+
   implicit val characterSchema: Schema[Any, Character] = obj("Character")(implicit o =>
     List(
       field("name")(_.name),
@@ -35,9 +38,14 @@ class GraphQL extends GenericSchema[Any] {
 
   def createInterpreter: ZIO[Any, CalibanError.ValidationError, GraphQLInterpreter[Any, CalibanError]] =
     for {
-      i <- graphQL[Any, Queries, Unit, Unit](
+      i <- graphQL[Any, Queries, Mutations, Unit](
         RootResolver(
-          Queries(() => ZIO.succeed(List(Character("jay"))))
+          Queries(() => ZIO.succeed(List(Character("jay")))),
+          Mutations(args =>
+            ZIO.logWarning(s">>>> $args") <*> ZIO.succeed {
+              args.name == "jay"
+            }
+          )
         )
       ).interpreter
     } yield i
